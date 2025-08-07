@@ -1,0 +1,157 @@
+&GLOBAL
+  PROJECT  MoS2
+  PRINT_LEVEL MEDIUM
+  RUN_TYPE ENERGY
+  &TIMINGS
+     THRESHOLD 0.0001
+  &END
+  TRACE
+  TRACE_MASTER
+  TRACE_ROUTINES compute_chi dbt_create_2c_R dbt_create_3c_R1_R2 dbt_create G_occ_vir contract_M_occ_vir_to_chi local_dbt_to_global_fm
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+  !&PROPERTIES
+  !&TDDFPT                          ! input section for TDDFPT
+  !     KERNEL FULL                       ! specification of the underlying kernel matrix K
+  !                                       ! FULL kernel is for GGA and hybrid functional computations
+  !                                       ! sTDA kernel is referring to a semi-empirical sTDA computation
+  !     NSTATES 20                      ! specifies the number of excited states to be computed
+  !     MAX_ITER   100                  ! number of iterations for the Davidson algorithm
+  !     CONVERGENCE [eV] 1.0e-6         ! convergence threshold in eV
+  !     &XC                            ! If choosing kernel FULL, the underlying functional can be
+  !      &XC_FUNCTIONAL PBE0             ! specified by adding an XC section
+  !      &END XC_FUNCTIONAL              ! The functional can be chosen independently from the chosen
+  !	 &HF
+  !        &MEMORY 
+  !          MAX_MEMORY 8000
+  !	   &END MEMORY
+  !	 &END HF
+  !     &END XC                        ! GS functional except when choosing ADMM 
+  !  &END TDDFPT
+  !  &END PROPERTIES
+  &DFT
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states_RI
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ-TOTRI
+    SORT_BASIS EXP
+    POTENTIAL_FILE_NAME  /pc2/groups/hpc-prf-metdyn/metdyn02_Remi/cp2k/cp2k/data/ALL_POTENTIALS 
+    CHARGE 0
+    &MGRID
+      CUTOFF  500
+      REL_CUTOFF  100
+    &END MGRID
+    &POISSON
+      PERIODIC NONE
+      POISSON_SOLVER WAVELET
+    &END POISSON
+    &QS
+      METHOD GAPW
+      EPS_DEFAULT 1.0E-12
+      EPS_PGF_ORB 1.0E-12
+    &END QS
+    &SCF
+      SCF_GUESS ATOMIC
+      EPS_SCF 1.0E-6
+      MAX_SCF 500
+      &PRINT
+        &RESTART ON
+        &END
+      &END
+      ADDED_MOS -1
+      &MIXING
+          METHOD BROYDEN_MIXING
+          ALPHA 0.1
+          BETA 1.5
+          NBROYDEN 8
+      &END
+      CHOLESKY OFF
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL PBE0
+      &END XC_FUNCTIONAL
+      &HF
+         &MEMORY
+          MAX_MEMORY 64000
+         &END MEMORY
+      &END HF
+      &WF_CORRELATION
+      	&RI_RPA
+	  QUADRATURE_POINTS 100
+      	  &GW
+	    CORR_MOS_OCC -1
+	    CORR_MOS_VIRT -1
+	    &BSE
+              BSE_DIAG_METHOD FULLDIAG
+              TDA OFF
+            &END BSE 
+          &END GW	
+        &END RI_RPA
+      &END WF_CORRELATION
+    &END XC
+    &PRINT
+    &OVERLAP_CONDITION ON
+    DIAGONALIZATION T
+    &END OVERLAP_CONDITION
+    &END PRINT
+  &END DFT
+    &SUBSYS
+    &CELL
+      ABC                 30 30 30
+      ALPHA_BETA_GAMMA    90 90 90
+      PERIODIC NONE
+    &END CELL
+
+     &KIND N
+      BASIS_SET ORB aug-SZV-MOLOPT-ae-mini
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae-mini_N_RI_023_s_p_d_f_g_h_i_4_3_2_0_0_0_0_error_1.0e-06
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND C
+      BASIS_SET ORB aug-SZV-MOLOPT-ae-mini
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae-mini_N_RI_022_s_p_d_f_g_h_i_6_2_2_0_0_0_0_error_1.4e-06
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND H
+      BASIS_SET ORB aug-SZV-MOLOPT-ae-mini
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_007_s_p_d_f_g_h_i_4_1_0_0_0_0_0_error_4.4e-05
+      POTENTIAL ALL
+     &END KIND
+
+    
+
+
+
+
+    &TOPOLOGY
+     &CENTER_COORDINATES T
+     &END CENTER_COORDINATES
+    &END TOPOLOGY
+
+
+    &COORD
+     N 47.39510687 40.77162011 44.73704945
+     N 44.29223838 39.68374196 43.28435494
+     N 45.61831700 39.09150085 45.02987171
+     C 46.24522867 40.16897648 44.40869737
+     C 45.40333406 40.50686866 43.33971588
+     C 44.45828885 38.86579110 44.29605640
+     C 46.00523739 38.34160263 46.15376866
+     C 47.10975978 38.52927052 46.88159468
+     H 43.77752417 38.06653569 44.57667517
+     H 45.28731196 37.55484102 46.38869013
+     H 47.82626390 39.31286114 46.64881555
+     H 47.29349688 37.87623353 47.73134082
+     N 46.97004662 42.21916331 42.84420195
+     N 45.11163700 42.01249252 41.46385901
+     C 45.81901614 41.58984380 42.53730611
+     H 45.42378551 42.83667014 40.96872345
+     H 44.21121899 41.60367420 41.25697788
+     C 47.67297554 41.78198138 43.90025118
+     H 48.59763235 42.32650596 44.10408030
+&END COORD
+  &END SUBSYS
+&END FORCE_EVAL

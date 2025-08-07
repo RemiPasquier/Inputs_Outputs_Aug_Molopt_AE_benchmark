@@ -1,0 +1,145 @@
+&GLOBAL
+  PROJECT  MoS2
+  PRINT_LEVEL MEDIUM
+  RUN_TYPE ENERGY
+  &TIMINGS
+     THRESHOLD 0.0001
+  &END
+  TRACE
+  TRACE_MASTER
+  TRACE_ROUTINES compute_chi dbt_create_2c_R dbt_create_3c_R1_R2 dbt_create G_occ_vir contract_M_occ_vir_to_chi local_dbt_to_global_fm
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+   &DFT
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states_RI
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ-TOTRI
+    SORT_BASIS EXP
+    POTENTIAL_FILE_NAME  /pc2/groups/hpc-prf-metdyn/metdyn02_Remi/cp2k/cp2k/data/ALL_POTENTIALS 
+    CHARGE 0
+    &MGRID
+      CUTOFF  500
+      REL_CUTOFF  100
+    &END MGRID
+    &POISSON
+      PERIODIC NONE
+      POISSON_SOLVER WAVELET
+    &END POISSON
+    &QS
+      METHOD GAPW
+      EPS_DEFAULT 1.0E-12
+      EPS_PGF_ORB 1.0E-12
+    &END QS
+    &SCF
+      SCF_GUESS ATOMIC
+      EPS_SCF 1.0E-6
+      MAX_SCF 500
+      &PRINT
+        &RESTART ON
+        &END
+      &END
+      ADDED_MOS -1
+      &MIXING
+          METHOD BROYDEN_MIXING
+          ALPHA 0.1
+          BETA 1.5
+          NBROYDEN 8
+      &END
+      CHOLESKY OFF
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL PBE0
+      &END XC_FUNCTIONAL
+      &HF
+         &MEMORY
+          MAX_MEMORY 64000
+         &END MEMORY
+      &END HF
+    &END XC
+    &PRINT
+    &OVERLAP_CONDITION ON
+    DIAGONALIZATION T
+    &END OVERLAP_CONDITION
+    &END PRINT
+  &END DFT
+  &PROPERTIES
+    &BANDSTRUCTURE
+      &GW
+        NUM_TIME_FREQ_POINTS         30
+        MEMORY_PER_PROC              64
+        EPS_FILTER              1.0E-11
+        REGULARIZATION_RI        1.0E-2
+CUTOFF_RADIUS_RI            5.0
+      &END
+    &END
+  &END PROPERTIES
+
+    &SUBSYS
+    &CELL
+      ABC                 30 30 30
+      ALPHA_BETA_GAMMA    90 90 90
+      PERIODIC NONE
+    &END CELL
+
+     &KIND Cl
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_027_s_p_d_f_g_h_i_6_3_1_1_0_0_0_error_7.0e-03
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND O
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_041_s_p_d_f_g_h_i_7_4_3_1_0_0_0_error_1.8e-04
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND C
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_023_s_p_d_f_g_h_i_5_2_1_1_0_0_0_error_6.7e-04
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND H
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_006_s_p_d_f_g_h_i_3_1_0_0_0_0_0_error_1.3e-04
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND N
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_019_s_p_d_f_g_h_i_4_1_1_1_0_0_0_error_8.1e-03
+      POTENTIAL ALL
+     &END KIND
+
+    
+
+
+
+
+    &TOPOLOGY
+     &CENTER_COORDINATES T
+     &END CENTER_COORDINATES
+    &END TOPOLOGY
+
+
+    &COORD
+     Cl 26.39573831 26.74970106 27.42904038
+     O 27.20259215 24.39809162 29.55890019
+     Cl 31.21899310 27.52059406 25.15795571
+     C 28.89479985 27.03554719 26.45601354
+     C 30.26256874 26.92207391 26.45182196
+     H 28.38404382 27.51947770 25.62671899
+     O 32.14022435 25.40327473 29.03697053
+     C 28.66939572 25.91744197 28.62766533
+     N 27.86841365 25.40776378 29.76127588
+     C 28.10057022 26.53087623 27.53502795
+     N 30.88031693 25.24603772 29.56161397
+     C 30.87799606 26.28594605 27.56756876
+     O 27.95248316 26.03883605 30.80938916
+     C 30.08065356 25.79380686 28.65538875
+     N 32.15350785 26.03376654 27.82389761
+&END COORD
+  &END SUBSYS
+&END FORCE_EVAL

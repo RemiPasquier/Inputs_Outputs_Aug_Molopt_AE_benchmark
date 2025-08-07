@@ -1,0 +1,164 @@
+&GLOBAL
+  PROJECT  MoS2
+  PRINT_LEVEL MEDIUM
+  RUN_TYPE ENERGY
+  &TIMINGS
+     THRESHOLD 0.0001
+  &END
+  TRACE
+  TRACE_MASTER
+  TRACE_ROUTINES compute_chi dbt_create_2c_R dbt_create_3c_R1_R2 dbt_create G_occ_vir contract_M_occ_vir_to_chi local_dbt_to_global_fm
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+  &PROPERTIES
+  &TDDFPT                          ! input section for TDDFPT
+       KERNEL FULL                       ! specification of the underlying kernel matrix K
+                                         ! FULL kernel is for GGA and hybrid functional computations
+                                         ! sTDA kernel is referring to a semi-empirical sTDA computation
+       NSTATES 20                      ! specifies the number of excited states to be computed
+       MAX_ITER   100                  ! number of iterations for the Davidson algorithm
+       CONVERGENCE [eV] 1.0e-6         ! convergence threshold in eV
+       &XC                            ! If choosing kernel FULL, the underlying functional can be
+        &XC_FUNCTIONAL PBE0             ! specified by adding an XC section
+        &END XC_FUNCTIONAL              ! The functional can be chosen independently from the chosen
+  	 &HF
+          &MEMORY 
+            MAX_MEMORY 8000
+  	   &END MEMORY
+  	 &END HF
+       &END XC                        ! GS functional except when choosing ADMM 
+    &END TDDFPT
+    &END PROPERTIES
+  &DFT
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states_RI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/aug-cc-pVZ
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/aug-cc-pVZ-TOTRI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/cc-pVZ
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/cc-pVZ-RI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_MOLOPT_UZH
+    SORT_BASIS EXP
+    POTENTIAL_FILE_NAME  /hppfs/work/pn36zo/di38fab/cp2k/data/ALL_POTENTIALS 
+    CHARGE 0
+    &MGRID
+      CUTOFF  500
+      REL_CUTOFF  100
+    &END MGRID
+    &POISSON
+      PERIODIC NONE
+      POISSON_SOLVER WAVELET
+    &END POISSON
+    &QS
+      METHOD GAPW
+      EPS_DEFAULT 1.0E-12
+      EPS_PGF_ORB 1.0E-12
+    &END QS
+    &SCF
+      SCF_GUESS ATOMIC
+      EPS_SCF 1.0E-6
+      MAX_SCF 500
+      &PRINT
+        &RESTART ON
+        &END
+      &END
+      ADDED_MOS -1
+      &MIXING
+          METHOD BROYDEN_MIXING
+          ALPHA 0.1
+          BETA 1.5
+          NBROYDEN 8
+      &END
+      CHOLESKY OFF
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL PBE0
+      &END XC_FUNCTIONAL
+      &HF
+         &MEMORY
+          MAX_MEMORY 8000
+         &END MEMORY
+      &END HF
+!      &WF_CORRELATION
+!      	&RI_RPA
+!	  QUADRATURE_POINTS 100
+!      	  &GW
+!	    CORR_MOS_OCC -1
+!	    CORR_MOS_VIRT -1
+!	    &BSE
+!              BSE_DIAG_METHOD FULLDIAG
+!              TDA OFF
+!            &END BSE 
+!          &END GW	
+!        &END RI_RPA
+!      &END WF_CORRELATION
+    &END XC
+    &PRINT
+    &OVERLAP_CONDITION ON
+    DIAGONALIZATION T
+    &END OVERLAP_CONDITION
+    &END PRINT
+  &END DFT
+    &SUBSYS
+    &CELL
+      ABC                 30 30 30
+      ALPHA_BETA_GAMMA    90 90 90
+      PERIODIC NONE
+    &END CELL
+
+     &KIND O
+      BASIS_SET ORB cc-pVTZ
+      BASIS_SET RI_AUX cc-pVTZ-RIFIT
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND C
+      BASIS_SET ORB cc-pVTZ
+      BASIS_SET RI_AUX cc-pVTZ-RIFIT
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND H
+      BASIS_SET ORB cc-pVTZ
+      BASIS_SET RI_AUX cc-pVTZ-RIFIT
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND S
+      BASIS_SET ORB cc-pVTZ
+      BASIS_SET RI_AUX cc-pVTZ-RIFIT
+      POTENTIAL ALL
+     &END KIND
+
+    
+
+
+
+
+    &TOPOLOGY
+     &CENTER_COORDINATES T
+     &END CENTER_COORDINATES
+    &END TOPOLOGY
+
+
+    &COORD
+     O 22.13829781 23.56564641 19.72710407
+     C 25.17586463 23.64609674 19.12500394
+     H 24.61053576 22.72740911 18.92484401
+     H 26.24322451 23.40087479 19.20828509
+     H 24.94698646 24.29822384 17.03217238
+     S 22.92144054 24.81728094 19.79232687
+     O 23.55037046 25.16948142 18.26930641
+     C 24.91960655 24.70142394 18.05310066
+     C 24.66645555 24.34942866 20.37843576
+     C 25.42428733 25.60819058 20.65428725
+     C 25.98553922 26.31003960 19.65630361
+     C 25.86135146 25.89816520 18.21514093
+     H 24.52852419 23.70408468 21.25219585
+     H 25.49051345 25.95933212 21.68441326
+     H 26.53555056 27.22650463 19.87736127
+     H 25.47015406 26.73586020 17.61585607
+     H 26.85279514 25.66075656 17.79176650
+&END COORD
+  &END SUBSYS
+&END FORCE_EVAL

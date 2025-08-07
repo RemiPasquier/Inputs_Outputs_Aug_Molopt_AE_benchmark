@@ -1,0 +1,173 @@
+&GLOBAL
+  PROJECT  MoS2
+  PRINT_LEVEL MEDIUM
+  RUN_TYPE ENERGY
+  &TIMINGS
+     THRESHOLD 0.0001
+  &END
+  TRACE
+  TRACE_MASTER
+  TRACE_ROUTINES compute_chi dbt_create_2c_R dbt_create_3c_R1_R2 dbt_create G_occ_vir contract_M_occ_vir_to_chi local_dbt_to_global_fm
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+  !&PROPERTIES
+  !&TDDFPT                          ! input section for TDDFPT
+  !     KERNEL FULL                       ! specification of the underlying kernel matrix K
+  !                                       ! FULL kernel is for GGA and hybrid functional computations
+  !                                       ! sTDA kernel is referring to a semi-empirical sTDA computation
+  !     NSTATES 20                      ! specifies the number of excited states to be computed
+  !     MAX_ITER   100                  ! number of iterations for the Davidson algorithm
+  !     CONVERGENCE [eV] 1.0e-6         ! convergence threshold in eV
+  !     &XC                            ! If choosing kernel FULL, the underlying functional can be
+  !      &XC_FUNCTIONAL PBE0             ! specified by adding an XC section
+  !      &END XC_FUNCTIONAL              ! The functional can be chosen independently from the chosen
+  !	 &HF
+  !        &MEMORY 
+  !          MAX_MEMORY 8000
+  !	   &END MEMORY
+  !	 &END HF
+  !     &END XC                        ! GS functional except when choosing ADMM 
+  !  &END TDDFPT
+  !  &END PROPERTIES
+  &DFT
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states_RI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/aug-cc-pVZ
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/aug-cc-pVZ-TOTRI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/cc-pVZ
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/cc-pVZ-RI
+    BASIS_SET_FILE_NAME /hppfs/scratch/04/di38fab/04_TMD/BASIS_AUG_MOLOPT/BASIS_MOLOPT_UZH
+    SORT_BASIS EXP
+    POTENTIAL_FILE_NAME  /hppfs/work/pn36zo/di38fab/cp2k/data/ALL_POTENTIALS 
+    CHARGE 0
+    &MGRID
+      CUTOFF  500
+      REL_CUTOFF  100
+    &END MGRID
+    &POISSON
+      PERIODIC NONE
+      POISSON_SOLVER WAVELET
+    &END POISSON
+    &QS
+      METHOD GAPW
+      EPS_DEFAULT 1.0E-12
+      EPS_PGF_ORB 1.0E-12
+    &END QS
+    &SCF
+      SCF_GUESS ATOMIC
+      EPS_SCF 1.0E-6
+      MAX_SCF 500
+      &PRINT
+        &RESTART ON
+        &END
+      &END
+      ADDED_MOS -1
+      &MIXING
+          METHOD BROYDEN_MIXING
+          ALPHA 0.1
+          BETA 1.5
+          NBROYDEN 8
+      &END
+      CHOLESKY OFF
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL PBE0
+      &END XC_FUNCTIONAL
+      &HF
+         &MEMORY
+          MAX_MEMORY 8000
+         &END MEMORY
+      &END HF
+      &WF_CORRELATION
+      	&RI_RPA
+	  QUADRATURE_POINTS 100
+      	  &GW
+	    CORR_MOS_OCC -1
+	    CORR_MOS_VIRT -1
+	    &BSE
+              BSE_DIAG_METHOD FULLDIAG
+              TDA OFF
+            &END BSE 
+          &END GW	
+        &END RI_RPA
+      &END WF_CORRELATION
+    &END XC
+    &PRINT
+    &OVERLAP_CONDITION ON
+    DIAGONALIZATION T
+    &END OVERLAP_CONDITION
+    &END PRINT
+  &END DFT
+    &SUBSYS
+    &CELL
+      ABC                 30 30 30
+      ALPHA_BETA_GAMMA    90 90 90
+      PERIODIC NONE
+    &END CELL
+
+     &KIND H
+      BASIS_SET ORB QZVPP-MOLOPT-GGA-ae
+      BASIS_SET RI_AUX aug-cc-pV5Z-OPTRI
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND S
+      BASIS_SET ORB QZVPP-MOLOPT-GGA-ae
+      BASIS_SET RI_AUX aug-cc-pV5Z-OPTRI
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND C
+      BASIS_SET ORB QZVPP-MOLOPT-GGA-ae
+      BASIS_SET RI_AUX aug-cc-pV5Z-OPTRI
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND O
+      BASIS_SET ORB QZVPP-MOLOPT-GGA-ae
+      BASIS_SET RI_AUX aug-cc-pV5Z-OPTRI
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND N
+      BASIS_SET ORB QZVPP-MOLOPT-GGA-ae
+      BASIS_SET RI_AUX aug-cc-pV5Z-OPTRI
+      POTENTIAL ALL
+     &END KIND
+
+    
+
+
+
+
+    &TOPOLOGY
+     &CENTER_COORDINATES T
+     &END CENTER_COORDINATES
+    &END TOPOLOGY
+
+
+    &COORD
+     H 13.10580671 14.30581893 23.00277697
+     S 15.35687195 16.02741568 22.01280852
+     C 14.80860702 15.50041377 23.58282102
+     C 14.03796597 14.21380563 23.57729292
+     O 14.26520518 16.13531530 21.06513636
+     O 16.54425139 15.30345603 21.59525091
+     H 14.61891240 13.39021883 23.13833517
+     C 15.15335909 16.20222549 24.69696435
+     H 13.78523547 13.94076552 24.60912492
+     H 14.83468607 15.78755960 25.65808772
+     C 16.14961297 18.00384363 23.70276960
+     S 17.04023498 19.52497415 23.72554153
+     C 16.66398096 19.81436855 21.96080002
+     C 16.47214690 18.42659158 21.35493933
+     N 15.82910999 17.63210741 22.41258520
+     H 17.49755882 20.35006960 21.49586749
+     H 15.75247309 20.42033172 21.88610907
+     H 15.82500428 18.45498942 20.46978952
+     H 17.43589084 17.96971747 21.08110585
+     N 15.84191720 17.38535300 24.79758602
+&END COORD
+  &END SUBSYS
+&END FORCE_EVAL

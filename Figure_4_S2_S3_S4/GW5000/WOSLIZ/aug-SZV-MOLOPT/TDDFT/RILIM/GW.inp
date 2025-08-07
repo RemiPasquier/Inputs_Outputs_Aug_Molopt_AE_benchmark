@@ -1,0 +1,170 @@
+&GLOBAL
+  PROJECT  MoS2
+  PRINT_LEVEL MEDIUM
+  RUN_TYPE ENERGY
+  &TIMINGS
+     THRESHOLD 0.0001
+  &END
+  TRACE
+  TRACE_MASTER
+  TRACE_ROUTINES compute_chi dbt_create_2c_R dbt_create_3c_R1_R2 dbt_create G_occ_vir contract_M_occ_vir_to_chi local_dbt_to_global_fm
+&END GLOBAL
+&FORCE_EVAL
+  METHOD Quickstep
+  &PROPERTIES
+  &TDDFPT                          ! input section for TDDFPT
+       KERNEL FULL                       ! specification of the underlying kernel matrix K
+                                         ! FULL kernel is for GGA and hybrid functional computations
+                                         ! sTDA kernel is referring to a semi-empirical sTDA computation
+       NSTATES 20                      ! specifies the number of excited states to be computed
+       MAX_ITER   100                  ! number of iterations for the Davidson algorithm
+       CONVERGENCE [eV] 1.0e-6         ! convergence threshold in eV
+       &XC                            ! If choosing kernel FULL, the underlying functional can be
+        &XC_FUNCTIONAL PBE0             ! specified by adding an XC section
+        &END XC_FUNCTIONAL              ! The functional can be chosen independently from the chosen
+  	 &HF
+          &MEMORY 
+            MAX_MEMORY 8000
+  	   &END MEMORY
+  	 &END HF
+       &END XC                        ! GS functional except when choosing ADMM 
+    &END TDDFPT
+   &END PROPERTIES
+  &DFT
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/BASIS_ALL_MOLOPT_AUG_for_excited_states_RI
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ
+    BASIS_SET_FILE_NAME /scratch/hpc-prf-metdyn/metdyn02_Remi/BASIS_AUG_MOLOPT/aug-cc-pVZ-TOTRI
+    SORT_BASIS EXP
+    POTENTIAL_FILE_NAME  /pc2/groups/hpc-prf-metdyn/metdyn02_Remi/cp2k/cp2k/data/ALL_POTENTIALS 
+    CHARGE 0
+    &MGRID
+      CUTOFF  500
+      REL_CUTOFF  100
+    &END MGRID
+    &POISSON
+      PERIODIC NONE
+      POISSON_SOLVER WAVELET
+    &END POISSON
+    &QS
+      METHOD GAPW
+      EPS_DEFAULT 1.0E-12
+      EPS_PGF_ORB 1.0E-12
+    &END QS
+    &SCF
+      SCF_GUESS ATOMIC
+      EPS_SCF 1.0E-6
+      MAX_SCF 500
+      &PRINT
+        &RESTART ON
+        &END
+      &END
+      ADDED_MOS -1
+      &MIXING
+          METHOD BROYDEN_MIXING
+          ALPHA 0.1
+          BETA 1.5
+          NBROYDEN 8
+      &END
+      CHOLESKY OFF
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL PBE0
+      &END XC_FUNCTIONAL
+      &HF
+         &MEMORY
+          MAX_MEMORY 8000
+         &END MEMORY
+      &END HF
+     ! &WF_CORRELATION
+     ! 	&RI_RPA
+     !	  QUADRATURE_POINTS 100
+     ! 	  &GW
+     !	    CORR_MOS_OCC -1
+     !	    CORR_MOS_VIRT -1
+     !	    &BSE
+     !         BSE_DIAG_METHOD FULLDIAG
+     !        TDA OFF
+     !      &END BSE 
+     !    &END GW	
+     !  &END RI_RPA
+     !&END WF_CORRELATION
+    &END XC
+    &PRINT
+    &OVERLAP_CONDITION ON
+    DIAGONALIZATION T
+    &END OVERLAP_CONDITION
+    &END PRINT
+  &END DFT
+    &SUBSYS
+    &CELL
+      ABC                 30 30 30
+      ALPHA_BETA_GAMMA    90 90 90
+      PERIODIC NONE
+    &END CELL
+
+     &KIND H
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_035_s_p_d_f_g_h_i_7_6_2_0_0_0_0_error_5.1e-08
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND C
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_048_s_p_d_f_g_h_i_6_3_2_2_1_0_0_error_8.4e-05
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND O
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_103_s_p_d_f_g_h_i_7_5_4_3_2_2_0_error_1.6e-07
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND S
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_072_s_p_d_f_g_h_i_7_6_3_2_2_0_0_error_1.9e-04
+      POTENTIAL ALL
+     &END KIND
+
+     &KIND N
+      BASIS_SET ORB aug-SZV-MOLOPT-ae
+      BASIS_SET RI_AUX RI_aug-SZV-MOLOPT-ae_N_RI_078_s_p_d_f_g_h_i_7_6_5_4_0_0_0_error_8.3e-08
+      POTENTIAL ALL
+     &END KIND
+
+    
+
+
+
+
+    &TOPOLOGY
+     &CENTER_COORDINATES T
+     &END CENTER_COORDINATES
+    &END TOPOLOGY
+
+
+    &COORD
+     H 15.64614432 12.73375329 19.94264205
+     C 14.78289253 13.94712666 23.46122497
+     H 14.57115658 14.26260679 24.48575530
+     C 14.08114275 14.50198378 22.38713605
+     H 13.31489514 15.25571287 22.56229589
+     C 14.38955040 14.06501499 21.09780209
+     H 13.86586076 14.47242558 20.23324458
+     C 15.37668078 13.10062781 20.93282208
+     H 20.07047006 8.93962974 24.05542557
+     O 19.14861924 9.56423189 21.69655731
+     S 17.55244876 11.42721265 24.70035450
+     C 18.84169981 10.23945251 25.14866645
+     O 19.20994104 10.01058249 26.27927526
+     N 19.33510032 9.63909010 23.99719962
+     C 18.79930332 10.01834745 22.77261507
+     C 17.74582225 11.05493022 23.00172131
+     C 17.06845981 11.59049309 21.95797455
+     H 17.33864261 11.22233313 20.96674034
+     C 16.03372207 12.59543614 22.07112329
+     N 15.73191399 13.02173317 23.31887500
+&END COORD
+  &END SUBSYS
+&END FORCE_EVAL
