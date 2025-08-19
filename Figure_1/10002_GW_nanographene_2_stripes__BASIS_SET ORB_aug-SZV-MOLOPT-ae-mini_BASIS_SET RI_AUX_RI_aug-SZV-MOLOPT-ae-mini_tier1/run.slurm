@@ -1,0 +1,41 @@
+#!/bin/bash -l
+# Job Name and Files (also --job-name)
+#SBATCH -J OUT_Nanograph_BSE_RKS_GTH_GW_nanographene_2_
+
+#Output and error (also --output, --error):
+#SBATCH -o ./%x.%j.out
+#SBATCH -e ./%x.%j.err
+
+#Mailing
+#SBATCH --mail-user=maximilian.graml@ur.de
+#SBATCH --mail-type=END,FAIL
+
+#Initial working directory (also --chdir):
+#SBATCH -D .
+
+# Change here the job size and time limit:
+#SBATCH --time=0:15:00
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=8
+#SBATCH --cpus-per-task=16
+#SBATCH -p normal
+#SBATCH --exclusive
+#SBATCH --account=hpc-prf-coopfst
+
+#Setup of execution environment
+#SBATCH --export=NONE
+unset SLURM_EXPORT_ENV
+
+module reset
+####module load chem/Libint/2.6.0-GCC-12.2.0-lmax-7-cp2k
+module load chem/CP2K/2025.1-foss-2023b-gcc-openmpi-openblas
+
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export OMP_PLACES=cores
+export OMP_PROC_BIND=true
+#ulimit -s unlimited
+#export OMP_STACKSIZE=32g
+
+export exec="$cp2kdir/exe/local25/cp2k.psmp"
+
+srun --mpi=pmix_v3 $exec *inp
